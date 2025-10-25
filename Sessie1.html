@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bijzin Detective - Sessie 1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .progress-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .progress {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .fase {
+            display: none;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: fadeIn 0.5s;
+        }
+
+        .fase.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .fase-header h2 {
+            color: #667eea;
+            font-size: 1.8em;
+        }
+
+        .timer {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #764ba2;
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+
+        .latin-text {
+            font-size: 1.3em;
+            font-style: italic;
+            color: #333;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .latin-text .underline {
+            background: linear-gradient(to top, #ffd700 50%, transparent 50%);
+            padding: 2px 4px;
+            font-weight: bold;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 3px solid #667eea;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .option-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .option-btn.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        .option-btn.correct {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+
+        .option-btn.incorrect {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: white;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback.correct {
+            background: #d1fae5;
+            border-left: 5px solid #10b981;
+        }
+
+        .feedback.incorrect {
+            background: #fee2e2;
+            border-left: 5px solid #ef4444;
+        }
+
+        .feedback h3 {
+            margin-bottom: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .drag-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .drag-zone {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            min-height: 300px;
+            border: 3px dashed #ccc;
+        }
+
+        .drag-zone h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .draggable {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            cursor: move;
+            border: 2px solid #667eea;
+            transition: all 0.3s;
+        }
+
+        .draggable:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .draggable.dragging {
+            opacity: 0.5;
+        }
+
+        .drop-zone {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            min-height: 250px;
+            border: 3px dashed #667eea;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone.drag-over {
+            background: #e8eaf6;
+            border-color: #764ba2;
+        }
+
+        .drop-zone h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .achievement {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 20px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .badge {
+            display: inline-block;
+            background: #764ba2;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.9em;
+        }
+
+        .help-box {
+            background: #e8f4f8;
+            border-left: 5px solid #3b82f6;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .help-box h4 {
+            color: #3b82f6;
+            margin-bottom: 10px;
+        }
+
+        .comparison-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .comparison-side {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px solid #ccc;
+        }
+
+        .comparison-side h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .drag-container, .comparison-card {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕵️ Bijzin Detective - Sessie 1</h1>
+            <p>De Drie Types Bijzinnen</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-info">
+                <span id="current-fase">Fase 1 van 4</span>
+                <span id="total-time">Tijd: 0:00</span>
+            </div>
+            <div class="progress">
+                <div class="progress-fill" id="progress-fill" style="width: 0%">0%</div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">🎯 Score</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="streak">0</div>
+                <div class="stat-label">🔥 Streak</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="correct">0</div>
+                <div class="stat-label">✅ Correct</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="level">Beginner</div>
+                <div class="stat-label">📊 Niveau</div>
+            </div>
+        </div>
+
+        <!-- FASE 1: Herkenning Quiz -->
+        <div class="fase active" id="fase1">
+            <div class="fase-header">
+                <h2>Fase 1: Herkenning Quiz (15 min)</h2>
+                <div class="timer" id="timer1">15:00</div>
+            </div>
+
+            <div class="help-box">
+                <h4>💡 Wat moet je doen?</h4>
+                <p><strong>Oz/Vz</strong> = vervangt onderwerp/voorwerp, hoort bij verba (declarandi, sentiendi, volendi...)</p>
+                <p><strong>BVBz</strong> = vervangt bijvoeglijk naamwoord, hoort bij een substantief (qui, quae, quod)</p>
+                <p><strong>BWBz</strong> = vervangt bijwoord, geeft rol aan (tijd, reden, doel...)</p>
+            </div>
+
+            <div id="question-container"></div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="showExplanation()">📖 Uitleg</button>
+                <button class="btn btn-primary" id="check-btn" onclick="checkAnswer()">Controleer</button>
+                <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" style="display:none">Volgende →</button>
+            </div>
+        </div>
+
+        <!-- FASE 2: Drag & Drop Sorteren -->
+        <div class="fase" id="fase2">
+            <div class="fase-header">
+                <h2>Fase 2: Sorteer de Bijzinnen (30 min)</h2>
+                <div class="timer" id="timer2">30:00</div>
+            </div>
+
+            <div class="help-box">
+                <h4>💡 Sleep de zinnen naar de juiste categorie!</h4>
+                <p>Bij 80% correct unlock je niveau 2 met auteursteksten!</p>
+            </div>
+
+            <div class="drop-zone" id="drop-oz" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                <h3>Oz/Vz (Onderwerps-/Voorwerpszin)</h3>
+                <div id="dropped-oz"></div>
+            </div>
+
+            <div class="drop-zone" id="drop-bvbz" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                <h3>BVBz (Bijvoeglijke bijzin)</h3>
+                <div id="dropped-bvbz"></div>
+            </div>
+
+            <div class="drop-zone" id="drop-bwbz" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                <h3>BWBz (Bijwoordelijke bijzin)</h3>
+                <div id="dropped-bwbz"></div>
+            </div>
+
+            <div class="drag-zone">
+                <h3>🎯 Sleep deze zinnen naar boven</h3>
+                <div id="draggables-container"></div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="checkSorting()">Controleer Sortering</button>
+                <button class="btn btn-primary" onclick="nextFase(3)" style="display:none" id="fase2-next">Naar Fase 3 →</button>
+            </div>
+        </div>
+
+        <!-- FASE 3: Spot the Difference -->
+        <div class="fase" id="fase3">
+            <div class="fase-header">
+                <h2>Fase 3: Spot the Difference (25 min)</h2>
+                <div class="timer" id="timer3">25:00</div>
+            </div>
+
+            <div class="help-box">
+                <h4>💡 Vergelijk twee zinnen met "qui"</h4>
+                <p>Leg uit waarom de ene een BVBz is en de andere een Vz!</p>
+            </div>
+
+            <div id="comparison-container"></div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="checkComparison()">Controleer</button>
+                <button class="btn btn-primary" onclick="nextComparison()" style="display:none" id="next-comparison">Volgende →</button>
+            </div>
+        </div>
+
+        <!-- FASE 4: Mini-toets -->
+        <div class="fase" id="fase4">
+            <div class="fase-header">
+                <h2>Fase 4: Adaptieve Mini-toets (20 min)</h2>
+                <div class="timer" id="timer4">20:00</div>
+            </div>
+
+            <div class="help-box">
+                <h4>🏆 Finale Challenge!</h4>
+                <p>De moeilijkheid past zich aan op basis van je antwoorden. Laat zien wat je kan!</p>
+            </div>
+
+            <div id="final-test-container"></div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="final-check" onclick="checkFinalAnswer()">Controleer</button>
+                <button class="btn btn-primary" id="final-next" onclick="nextFinalQuestion()" style="display:none">Volgende →</button>
+                <button class="btn btn-primary" onclick="showResults()" style="display:none" id="show-results">Bekijk Resultaten 🎉</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const fase1Questions = [
+            {
+                text: "Amulius, <span class='underline'>postquam fratris filios occidit</span>, alterum crimen excogitavit.",
+                options: ["Oz/Vz", "BVBz", "BWBz"],
+                correct: "BWBz",
+                explanation: "Dit is een BWBz van tijd. 'Postquam' (nadat) geeft een tijdsbepaling aan en de bijzin vervangt een bijwoordelijke bepaling."
+            },
+            {
+                text: "Amulius duos ministros Romulum Remumque occidere iussit <span class='underline'>quod ipse rex fieri voluit</span>.",
+                options: ["Oz/Vz", "BVBz", "BWBz"],
+                correct: "BWBz",
+                explanation: "Dit is een BWBz van reden. 'Quod' (omdat) geeft de reden aan waarom Amulius dit beval."
+            },
+            {
+                text: "<span class='underline'>Amulium tyrannum crudelem fuisse</span> constat.",
+                options: ["Oz/Vz", "BVBz", "BWBz"],
+                correct: "Oz/Vz",
+                explanation: "Dit is een Oz (onderwerpszin). De a+i-zin functioneert als onderwerp bij het onpersoonlijk werkwoord 'constat' (het staat vast)."
+            },
+            {
+                text: "Romulus Remusque <span class='underline'>qui a lupā alebantur</span>, a pastore inventi sunt.",
+                options: ["Oz/Vz", "BVBz", "BWBz"],
+                correct: "BVBz",
+                explanation: "Dit is een BVBz. 'Qui' is hier een betrekkelijk voornaamwoord dat 'Romulus Remusque' nader bepaalt (die door een wolvin gevoed werden)."
+            },
+            {
+                text: "Pastor nescivit <span class='underline'>qui parentes geminorum essent</span>.",
+                options: ["Oz/Vz", "BVBz", "BWBz"],
+                correct: "Oz/Vz",
+                explanation: "Dit is een vragende Vz. 'Qui ... essent' (wie ... waren) is een indirecte vraag die functioneert als voorwerp bij 'nescivit'."
+            },
+            {
+                text: "Gemini scelus <span class='underline'>quod Amulius admiserat</span> vindicaverunt.",
+                options: ["Oz/Vz", "BVBz", "BWBz"],
+                correct: "BVBz",
+                explanation: "Dit is een BVBz. 'Quod' is hier een betrekkelijk voornaamwoord dat 'scelus' nader bepaalt (de misdaad die Amulius begaan had)."
+            }
+        ];
+
+        const dragSentences = [
+            { text: "Milites ducem fortiter pugnavisse credebant.", type: "Oz/Vz" },
+            { text: "Caesar, cum hostes videret, milites hortatus est.", type: "BWBz" },
+            { text: "Dux qui milites ducit fortis est.", type: "BVBz" },
+            { text: "Accidit ut multi milites vulnerarentur.", type: "Oz/Vz" },
+            { text: "Romani, postquam hostes vicerunt, domum redierunt.", type: "BWBz" },
+            { text: "Nescio quis hoc fecerit.", type: "Oz/Vz" },
+            { text: "Miles quem Caesar laudavit laetus est.", type: "BVBz" },
+            { text: "Caesar milites punivit quod fugissent.", type: "BWBz" }
+        ];
+
+        const comparisonPairs = [
+            {
+                sent1: "Pastor geminos <span class='underline'>qui a lupa alebantur</span> invenit.",
+                type1: "BVBz",
+                sent2: "Pastor nescivit <span class='underline'>qui parentes geminorum essent</span>.",
+                type2: "Vz",
+                explanation: "In zin 1 is 'qui' een betrekkelijk voornaamwoord dat 'geminos' nader bepaalt → BVBz. In zin 2 is 'qui' een vragend voornaamwoord in een indirecte vraag → Vz bij verbum declarandi 'nescivit'."
+            },
+            {
+                sent1: "Caesar ducem <span class='underline'>qui hostes timebat</span> punivit.",
+                type1: "BVBz",
+                sent2: "Caesar nescivit <span class='underline'>quis hostes timeret</span>.",
+                type2: "Vz",
+                explanation: "Zin 1: 'qui' bepaalt 'ducem' nader → BVBz. Zin 2: 'quis ... timeret' is een indirecte vraag (wie vreesde) → Vz."
+            },
+            {
+                sent1: "Miles <span class='underline'>quem Caesar laudavit</span> fortis erat.",
+                type1: "BVBz",
+                sent2: "Caesar rogavit <span class='underline'>quem miles occidisset</span>.",
+                type2: "Vz",
+                explanation: "Zin 1: 'quem' verwijst naar 'miles' → BVBz. Zin 2: 'quem ... occidisset' (wie had gedood) is een vragende Vz bij 'rogavit'."
+            }
+        ];
+
+        const finalQuestions = [
+            // Basis niveau
+            { text: "Scio <span class='underline'>te Latinum amare</span>.", options: ["Oz/Vz", "BVBz", "BWBz"], correct: "Oz/Vz", level: 1 },
+            { text: "Puer <span class='underline'>qui in via ludit</span> laetus est.", options: ["Oz/Vz", "BVBz", "BWBz"], correct: "BVBz", level: 1 },
+            { text: "<span class='underline'>Cum sol oritur</span>, aves cantant.", options: ["Oz/Vz", "BVBz", "BWBz"], correct: "BWBz", level: 1 },
+            
+            // Intermediate
+            { text: "Galli, <span class='underline'>quarum unam incolunt Belgae</span>, divisa est in partes tres.", options: ["Oz/Vz", "BVBz", "BWBz"], correct: "BVBz", level: 2 },
+            { text: "Horum omnium fortissimi sunt Belgae, <span class='underline'>propterea quod a cultu longissime absunt</span>.", options: ["Oz/Vz", "BVBz", "BWBz"], correct: "BWBz", level: 2 },
+            
+            // Advanced
+            { text: "Petis <span class='underline'>ut tibi avunculi mei exitum scribam</span>.", options: ["Oz/Vz", "BVBz", "BWBz"], correct: "Oz/Vz", level: 3 },
+            { text: "Flectit <span class='underline'>ut veras imitetur aves</span>.", options: ["Oz/Vz", "BVBz", "BWBz"], correct: "BWBz", level: 3 }
+        ];
+
+        // State
+        let currentQuestion = 0;
+        let score = 0;
+        let streak = 0;
+        let correct = 0;
+        let currentLevel = 1;
+        let fase1Answers = [];
+        let currentComparison = 0;
+        let currentFinalQ = 0;
+        let finalAnswers = [];
+        let startTime = Date.now();
+
+        // Timer
+        function startTimer(minutes, elementId) {
+            let seconds = minutes * 60;
+            const timerElement = document.getElementById(elementId);
+            
+            const interval = setInterval(() => {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                timerElement.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                seconds--;
+                
+                if (seconds < 0) {
+                    clearInterval(interval);
+                }
+            }, 1000);
+        }
+
+        // Update total time
+        setInterval(() => {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const mins = Math.floor(elapsed / 60);
+            const secs = elapsed % 60;
+            document.getElementById('total-time').textContent = `Tijd: ${mins}:${secs.toString().padStart(2, '0')}`;
+        }, 1000);
+
+        // Fase 1 Functions
+        function loadQuestion() {
+            if (currentQuestion >= fase1Questions.length) {
+                showAchievement("Fase 1 Voltooid! 🎉");
+                setTimeout(() => nextFase(2), 2000);
+                return;
+            }
+
+            const q = fase1Questions[currentQuestion];
+            const container = document.getElementById('question-container');
+            
+            container.innerHTML = `
+                <div class="question-card">
+                    <div class="latin-text">${q.text}</div>
+                    <p><strong>Welk type bijzin staat onderlijnd?</strong></p>
+                    <div class="options" id="options">
+                        ${q.options.map(opt => `
+                            <button class="option-btn" onclick="selectOption('${opt}')">${opt}</button>
+                        `).join('')}
+                    </div>
+                    <div class="feedback" id="feedback"></div>
+                </div>
+            `;
+        }
+
+        function selectOption(option) {
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+            fase1Answers[currentQuestion] = option;
+        }
+
+        function checkAnswer() {
+            const q = fase1Questions[currentQuestion];
+            const userAnswer = fase1Answers[currentQuestion];
+            
+            if (!userAnswer) {
+                alert("Kies eerst een antwoord!");
+                return;
+            }
+
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === q.correct) {
+                    btn.classList.add('correct');
+                } else if (btn.textContent === userAnswer && userAnswer !== q.correct) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            const feedback = document.getElementById('feedback');
+            feedback.classList.add('show');
+            
+            if (userAnswer === q.correct) {
+                feedback.classList.add('correct');
+                feedback.innerHTML = `<h3>✅ Correct!</h3><p>${q.explanation}</p>`;
+                score += 10 + (streak * 2);
+                streak++;
+                correct++;
+            } else {
+                feedback.classList.add('incorrect');
+                feedback.innerHTML = `<h3>❌ Niet helemaal</h3><p><strong>Juiste antwoord:</strong> ${q.correct}</p><p>${q.explanation}</p>`;
+                streak = 0;
+            }
+
+            updateStats();
+            document.getElementById('check-btn').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'inline-block';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            updateProgress();
+            document.getElementById('check-btn').style.display = 'inline-block';
+            document.getElementById('next-btn').style.display = 'none';
+            loadQuestion();
+        }
+
+        function showExplanation() {
+            alert(`
+📚 Korte Uitleg:
+
+Oz/Vz (Onderwerps-/Voorwerpszin):
+- Vervangt het onderwerp of voorwerp
+- Hoort bij verba (declarandi, sentiendi, volendi, etc.)
+- Vaak a+i-zin of indirecte vraag
+
+BVBz (Bijvoeglijke bijzin):
+- Vervangt een bijvoeglijk naamwoord
+- Hoort bij een substantief
+- Ingeleiddoor betrekkelijk vnw (qui, quae, quod)
+
+BWBz (Bijwoordelijke bijzin):
+- Vervangt een bijwoordelijke bepaling
+- Geeft een rol (tijd, reden, doel, etc.)
+- Ingeleiddoor voegwoorden (cum, postquam, quod, ut, etc.)
+            `);
+        }
+
+        // Fase 2 Functions
+        function loadDragDrop() {
+            const container = document.getElementById('draggables-container');
+            const shuffled = [...dragSentences].sort(() => Math.random() - 0.5);
+            
+            container.innerHTML = shuffled.map((sent, idx) => `
+                <div class="draggable" draggable="true" ondragstart="drag(event)" id="drag-${idx}" data-type="${sent.type}">
+                    ${sent.text}
+                </div>
+            `).join('');
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drag-over');
+        }
+
+        function dragLeave(ev) {
+            ev.currentTarget.classList.remove('drag-over');
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+            ev.target.classList.add('dragging');
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('drag-over');
+            const data = ev.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            
+            // Determine which drop zone
+            let targetContainer;
+            if (ev.currentTarget.id === 'drop-oz') {
+                targetContainer = document.getElementById('dropped-oz');
+            } else if (ev.currentTarget.id === 'drop-bvbz') {
+                targetContainer = document.getElementById('dropped-bvbz');
+            } else if (ev.currentTarget.id === 'drop-bwbz') {
+                targetContainer = document.getElementById('dropped-bwbz');
+            }
+            
+            if (targetContainer) {
+                draggedElement.classList.remove('dragging');
+                targetContainer.appendChild(draggedElement);
+            }
+        }
+
+        function checkSorting() {
+            let correctCount = 0;
+            
+            const ozItems = document.getElementById('dropped-oz').children;
+            const bvbzItems = document.getElementById('dropped-bvbz').children;
+            const bwbzItems = document.getElementById('dropped-bwbz').children;
+            
+            for (let item of ozItems) {
+                if (item.dataset.type === 'Oz/Vz') {
+                    item.style.background = '#d1fae5';
+                    correctCount++;
+                } else {
+                    item.style.background = '#fee2e2';
+                }
+            }
+            
+            for (let item of bvbzItems) {
+                if (item.dataset.type === 'BVBz') {
+                    item.style.background = '#d1fae5';
+                    correctCount++;
+                } else {
+                    item.style.background = '#fee2e2';
+                }
+            }
+            
+            for (let item of bwbzItems) {
+                if (item.dataset.type === 'BWBz') {
+                    item.style.background = '#d1fae5';
+                    correctCount++;
+                } else {
+                    item.style.background = '#fee2e2';
+                }
+            }
+            
+            const percentage = (correctCount / dragSentences.length) * 100;
+            score += correctCount * 5;
+            updateStats();
+            
+            if (percentage >= 80) {
+                showAchievement("🎉 80% of meer! Niveau 2 Unlocked!");
+                currentLevel = 2;
+                document.getElementById('level').textContent = 'Intermediate';
+                document.getElementById('fase2-next').style.display = 'inline-block';
+            } else {
+                alert(`Je hebt ${correctCount}/${dragSentences.length} correct (${percentage.toFixed(0)}%). Probeer 80% te halen voor level 2!`);
+            }
+        }
+
+        // Fase 3 Functions
+        function loadComparison() {
+            if (currentComparison >= comparisonPairs.length) {
+                showAchievement("Fase 3 Voltooid! 🎉");
+                setTimeout(() => nextFase(4), 2000);
+                return;
+            }
+
+            const pair = comparisonPairs[currentComparison];
+            const container = document.getElementById('comparison-container');
+            
+            container.innerHTML = `
+                <div class="comparison-card">
+                    <div class="comparison-side">
+                        <h4>Zin A</h4>
+                        <p class="latin-text">${pair.sent1}</p>
+                        <select id="answer-a" class="option-btn" style="width: 100%; margin-top: 10px;">
+                            <option value="">Kies type...</option>
+                            <option value="BVBz">BVBz</option>
+                            <option value="Vz">Vz (voorwerpszin)</option>
+                        </select>
+                    </div>
+                    <div class="comparison-side">
+                        <h4>Zin B</h4>
+                        <p class="latin-text">${pair.sent2}</p>
+                        <select id="answer-b" class="option-btn" style="width: 100%; margin-top: 10px;">
+                            <option value="">Kies type...</option>
+                            <option value="BVBz">BVBz</option>
+                            <option value="Vz">Vz (voorwerpszin)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="feedback" id="comparison-feedback"></div>
+            `;
+        }
+
+        function checkComparison() {
+            const pair = comparisonPairs[currentComparison];
+            const answerA = document.getElementById('answer-a').value;
+            const answerB = document.getElementById('answer-b').value;
+            
+            if (!answerA || !answerB) {
+                alert("Vul beide antwoorden in!");
+                return;
+            }
+
+            const feedback = document.getElementById('comparison-feedback');
+            feedback.classList.add('show');
+            
+            if (answerA === pair.type1 && answerB === pair.type2) {
+                feedback.classList.add('correct');
+                feedback.innerHTML = `<h3>✅ Perfect!</h3><p>${pair.explanation}</p>`;
+                score += 20;
+                streak++;
+                correct += 2;
+            } else {
+                feedback.classList.add('incorrect');
+                feedback.innerHTML = `<h3>❌ Niet helemaal</h3><p><strong>Juist:</strong> Zin A = ${pair.type1}, Zin B = ${pair.type2}</p><p>${pair.explanation}</p>`;
+                streak = 0;
+            }
+
+            updateStats();
+            document.getElementById('next-comparison').style.display = 'inline-block';
+        }
+
+        function nextComparison() {
+            currentComparison++;
+            updateProgress();
+            document.getElementById('next-comparison').style.display = 'none';
+            loadComparison();
+        }
+
+        // Fase 4 Functions
+        function loadFinalQuestion() {
+            if (currentFinalQ >= 7) {
+                document.getElementById('final-check').style.display = 'none';
+                document.getElementById('final-next').style.display = 'none';
+                document.getElementById('show-results').style.display = 'inline-block';
+                return;
+            }
+
+            // Adaptive: select question based on current level
+            const availableQuestions = finalQuestions.filter(q => q.level === currentLevel);
+            const q = availableQuestions[currentFinalQ % availableQuestions.length] || finalQuestions[currentFinalQ];
+            
+            const container = document.getElementById('final-test-container');
+            container.innerHTML = `
+                <div class="question-card">
+                    <p><strong>Vraag ${currentFinalQ + 1}/7</strong> - Niveau ${currentLevel === 1 ? 'Beginner' : currentLevel === 2 ? 'Intermediate' : 'Advanced'}</p>
+                    <div class="latin-text">${q.text}</div>
+                    <p><strong>Welk type bijzin?</strong></p>
+                    <div class="options" id="final-options">
+                        ${q.options.map(opt => `
+                            <button class="option-btn" onclick="selectFinalOption('${opt}')">${opt}</button>
+                        `).join('')}
+                    </div>
+                    <div class="feedback" id="final-feedback"></div>
+                </div>
+            `;
+        }
+
+        function selectFinalOption(option) {
+            const buttons = document.querySelectorAll('#final-options .option-btn');
+            buttons.forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+            finalAnswers[currentFinalQ] = option;
+        }
+
+        function checkFinalAnswer() {
+            const availableQuestions = finalQuestions.filter(q => q.level === currentLevel);
+            const q = availableQuestions[currentFinalQ % availableQuestions.length] || finalQuestions[currentFinalQ];
+            const userAnswer = finalAnswers[currentFinalQ];
+            
+            if (!userAnswer) {
+                alert("Kies eerst een antwoord!");
+                return;
+            }
+
+            const buttons = document.querySelectorAll('#final-options .option-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === q.correct) {
+                    btn.classList.add('correct');
+                } else if (btn.textContent === userAnswer) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            const feedback = document.getElementById('final-feedback');
+            feedback.classList.add('show');
+            
+            if (userAnswer === q.correct) {
+                feedback.classList.add('correct');
+                feedback.innerHTML = `<h3>✅ Correct!</h3>`;
+                score += 15;
+                streak++;
+                correct++;
+                
+                // Level up after 2 correct in a row
+                if (streak >= 2 && currentLevel < 3) {
+                    currentLevel++;
+                    showAchievement(`🎊 Level Up! Nu niveau ${currentLevel}!`);
+                    document.getElementById('level').textContent = currentLevel === 2 ? 'Intermediate' : 'Advanced';
+                }
+            } else {
+                feedback.classList.add('incorrect');
+                feedback.innerHTML = `<h3>❌ Helaas</h3><p>Juiste antwoord: ${q.correct}</p>`;
+                streak = 0;
+                if (currentLevel > 1) currentLevel--;
+            }
+
+            updateStats();
+            document.getElementById('final-check').style.display = 'none';
+            document.getElementById('final-next').style.display = 'inline-block';
+        }
+
+        function nextFinalQuestion() {
+            currentFinalQ++;
+            updateProgress();
+            document.getElementById('final-check').style.display = 'inline-block';
+            document.getElementById('final-next').style.display = 'none';
+            loadFinalQuestion();
+        }
+
+        function showResults() {
+            const totalPossible = fase1Questions.length + dragSentences.length + (comparisonPairs.length * 2) + 7;
+            const percentage = ((correct / totalPossible) * 100).toFixed(1);
+            
+            let badges = [];
+            if (percentage >= 90) badges.push("🏆 Perfectionist");
+            if (percentage >= 80) badges.push("⭐ Expert");
+            if (percentage >= 70) badges.push("📚 Geleerde");
+            if (streak >= 5) badges.push("🔥 Hot Streak");
+            if (currentLevel === 3) badges.push("🎖️ Advanced Level");
+            
+            const container = document.querySelector('.fase.active');
+            container.innerHTML = `
+                <div style="text-align: center;">
+                    <h2 style="color: #667eea; margin-bottom: 30px;">🎉 Sessie 1 Voltooid!</h2>
+                    
+                    <div class="achievement">
+                        <h3>Je Resultaten</h3>
+                        <div style="font-size: 3em; margin: 20px 0;">${percentage}%</div>
+                        <p style="font-size: 1.2em;">Score: ${score} punten</p>
+                        <p>Correcte antwoorden: ${correct}/${totalPossible}</p>
+                    </div>
+                    
+                    <div style="margin: 30px 0;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">🏅 Behaalde Badges</h3>
+                        ${badges.map(b => `<span class="badge">${b}</span>`).join('')}
+                    </div>
+                    
+                    <div class="help-box" style="text-align: left;">
+                        <h4>📊 Jouw Analyse</h4>
+                        <p><strong>Eindscore:</strong> ${score} XP</p>
+                        <p><strong>Hoogste streak:</strong> ${streak}</p>
+                        <p><strong>Bereikt niveau:</strong> ${currentLevel === 1 ? 'Beginner' : currentLevel === 2 ? 'Intermediate' : 'Advanced'}</p>
+                        <br>
+                        <h4>💡 Tips voor Sessie 2</h4>
+                        ${percentage >= 80 
+                            ? '<p>Geweldig werk! Je bent klaar voor de BVBz-verdieping in sessie 2.</p>' 
+                            : '<p>Herhaal de drie types nog eens voordat je naar sessie 2 gaat. Focus vooral op het verschil tussen Oz/Vz en BVBz.</p>'}
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary" onclick="location.reload()">🔄 Opnieuw Doen</button>
+                        <button class="btn btn-primary" onclick="alert('Sessie 2 komt binnenkort! 🚀')">Naar Sessie 2 →</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Utility Functions
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('streak').textContent = streak;
+            document.getElementById('correct').textContent = correct;
+        }
+
+        function updateProgress() {
+            const totalQuestions = fase1Questions.length + dragSentences.length + (comparisonPairs.length * 2) + 7;
+            const answered = currentQuestion + currentComparison * 2 + currentFinalQ;
+            const percentage = (answered / totalQuestions) * 100;
+            
+            document.getElementById('progress-fill').style.width = percentage + '%';
+            document.getElementById('progress-fill').textContent = Math.round(percentage) + '%';
+        }
+
+        function nextFase(faseNum) {
+            document.querySelectorAll('.fase').forEach(f => f.classList.remove('active'));
+            document.getElementById(`fase${faseNum}`).classList.add('active');
+            document.getElementById('current-fase').textContent = `Fase ${faseNum} van 4`;
+            
+            if (faseNum === 2) {
+                loadDragDrop();
+                startTimer(30, 'timer2');
+            } else if (faseNum === 3) {
+                loadComparison();
+                startTimer(25, 'timer3');
+            } else if (faseNum === 4) {
+                loadFinalQuestion();
+                startTimer(20, 'timer4');
+            }
+            
+            updateProgress();
+        }
+
+        function showAchievement(text) {
+            const existing = document.querySelector('.achievement');
+            if (existing) existing.remove();
+            
+            const achievement = document.createElement('div');
+            achievement.className = 'achievement';
+            achievement.innerHTML = `<h3>${text}</h3>`;
+            document.querySelector('.container').appendChild(achievement);
+            
+            setTimeout(() => achievement.remove(), 3000);
+        }
+
+        // Initialize
+        loadQuestion();
+        startTimer(15, 'timer1');
+        updateStats();
+    </script>
+</body>
+</html>

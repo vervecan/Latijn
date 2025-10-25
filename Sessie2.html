@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BVBz - Antecedent Hunter - Sessie 2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #f5576c;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .progress-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .progress {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f093fb, #f5576c);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #f5576c;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .fase {
+            display: none;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: fadeIn 0.5s;
+        }
+
+        .fase.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #f5576c;
+        }
+
+        .fase-header h2 {
+            color: #f5576c;
+            font-size: 1.8em;
+        }
+
+        .timer {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #f093fb;
+        }
+
+        .flashcard-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+            perspective: 1000px;
+        }
+
+        .flashcard {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            width: 500px;
+            height: 300px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .flashcard:hover {
+            transform: scale(1.05);
+        }
+
+        .flashcard-question {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .flashcard-latin {
+            font-style: italic;
+            font-size: 1.2em;
+        }
+
+        .answer-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .answer-btn {
+            background: white;
+            border: 3px solid #f5576c;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #f5576c;
+        }
+
+        .answer-btn:hover {
+            background: #f5576c;
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(245, 87, 108, 0.3);
+        }
+
+        .answer-btn.correct {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+            animation: celebrate 0.5s;
+        }
+
+        .answer-btn.incorrect {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: white;
+            animation: shake 0.5s;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 5px solid #f5576c;
+        }
+
+        .latin-text {
+            font-size: 1.4em;
+            font-style: italic;
+            color: #333;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .latin-text .highlight {
+            background: linear-gradient(to top, #ffd700 50%, transparent 50%);
+            padding: 2px 4px;
+            font-weight: bold;
+        }
+
+        .translation-options {
+            display: grid;
+            gap: 15px;
+        }
+
+        .translation-option {
+            background: white;
+            border: 3px solid #f5576c;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .translation-option:hover {
+            background: #f5576c;
+            color: white;
+            transform: translateX(10px);
+        }
+
+        .translation-option.selected {
+            background: #f5576c;
+            color: white;
+        }
+
+        .translation-option.correct {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+
+        .translation-option.incorrect {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: white;
+        }
+
+        .word-bank {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            min-height: 100px;
+            border: 3px dashed #ccc;
+        }
+
+        .word-bank h4 {
+            color: #f5576c;
+            margin-bottom: 15px;
+        }
+
+        .word-chip {
+            display: inline-block;
+            background: white;
+            border: 2px solid #f5576c;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 25px;
+            cursor: move;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .word-chip:hover {
+            background: #f5576c;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .word-chip.placed {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+            cursor: default;
+        }
+
+        .sentence-builder {
+            background: white;
+            border: 3px solid #f5576c;
+            padding: 20px;
+            border-radius: 15px;
+            min-height: 100px;
+            margin-bottom: 20px;
+        }
+
+        .sentence-builder h4 {
+            color: #f5576c;
+            margin-bottom: 15px;
+        }
+
+        .drop-slot {
+            display: inline-block;
+            border-bottom: 3px solid #ccc;
+            min-width: 100px;
+            min-height: 40px;
+            margin: 5px;
+            padding: 5px;
+            vertical-align: middle;
+        }
+
+        .caesar-text {
+            background: #fff8dc;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #daa520;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            line-height: 1.8;
+            font-style: italic;
+        }
+
+        .caesar-text .clickable {
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+            transition: background 0.3s;
+        }
+
+        .caesar-text .clickable:hover {
+            background: #ffd700;
+        }
+
+        .caesar-text .identified {
+            background: #90ee90;
+            font-weight: bold;
+        }
+
+        .help-box {
+            background: #e8f4f8;
+            border-left: 5px solid #3b82f6;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .help-box h4 {
+            color: #3b82f6;
+            margin-bottom: 10px;
+        }
+
+        .forms-table {
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .forms-table th {
+            background: #f5576c;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .forms-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .forms-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #f5576c;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #d4475c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback.correct {
+            background: #d1fae5;
+            border-left: 5px solid #10b981;
+        }
+
+        .feedback.incorrect {
+            background: #fee2e2;
+            border-left: 5px solid #ef4444;
+        }
+
+        .achievement {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 20px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .badge {
+            display: inline-block;
+            background: #f093fb;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.9em;
+        }
+
+        .countdown {
+            font-size: 3em;
+            font-weight: bold;
+            color: #f5576c;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .leaderboard {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 2px solid #eee;
+            align-items: center;
+        }
+
+        .leaderboard-item.you {
+            background: #fff8dc;
+            border-left: 5px solid #ffd700;
+        }
+
+        @media (max-width: 768px) {
+            .answer-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .flashcard {
+                width: 100%;
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Antecedent Hunter - Sessie 2</h1>
+            <p>Betrekkelijk Voornaamwoord & BVBz</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-info">
+                <span id="current-fase">Fase 1 van 4</span>
+                <span id="total-time">Tijd: 0:00</span>
+            </div>
+            <div class="progress">
+                <div class="progress-fill" id="progress-fill" style="width: 0%">0%</div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">🎯 Score</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="streak">0</div>
+                <div class="stat-label">🔥 Streak</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="speed">0s</div>
+                <div class="stat-label">⚡ Gemiddelde Snelheid</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="combo">0x</div>
+                <div class="stat-label">💥 Combo Bonus</div>
+            </div>
+        </div>
+
+        <!-- FASE 1: Snelheidsquiz Vormen -->
+        <div class="fase active" id="fase1">
+            <div class="fase-header">
+                <h2>Fase 1: Vormen Flash Cards (20 min)</h2>
+                <div class="timer" id="timer1">20:00</div>
+            </div>
+
+            <div class="help-box">
+                <h4>⚡ Snelheids Challenge!</h4>
+                <p>Je hebt <strong>10 seconden</strong> per vraag. Kies de juiste vorm van het betrekkelijk voornaamwoord.</p>
+                <p><strong>Tip:</strong> Genus + Getal van antecedent, Naamval van functie in bijzin!</p>
+            </div>
+
+            <table class="forms-table">
+                <tr>
+                    <th>Naamval</th>
+                    <th>M</th>
+                    <th>F</th>
+                    <th>N</th>
+                    <th>MV</th>
+                    <th>FV</th>
+                    <th>NV</th>
+                </tr>
+                <tr>
+                    <td><strong>Nom</strong></td>
+                    <td>qui</td>
+                    <td>quae</td>
+                    <td>quod</td>
+                    <td colspan="3">qui, quae, quae</td>
+                </tr>
+                <tr>
+                    <td><strong>Gen</strong></td>
+                    <td colspan="3">cuius</td>
+                    <td colspan="3">quorum, quarum, quorum</td>
+                </tr>
+                <tr>
+                    <td><strong>Dat</strong></td>
+                    <td colspan="3">cui</td>
+                    <td colspan="3">quibus</td>
+                </tr>
+                <tr>
+                    <td><strong>Acc</strong></td>
+                    <td>quem</td>
+                    <td>quam</td>
+                    <td>quod</td>
+                    <td>quos</td>
+                    <td>quas</td>
+                    <td>quae</td>
+                </tr>
+                <tr>
+                    <td><strong>Abl</strong></td>
+                    <td colspan="3">quo, qua, quo</td>
+                    <td colspan="3">quibus</td>
+                </tr>
+            </table>
+
+            <div class="countdown" id="question-timer">10</div>
+
+            <div class="flashcard-container">
+                <div class="flashcard" id="flashcard">
+                    <div class="flashcard-question" id="flashcard-question"></div>
+                    <div class="flashcard-latin" id="flashcard-latin"></div>
+                </div>
+            </div>
+
+            <div class="answer-grid" id="answer-grid"></div>
+
+            <div class="feedback" id="fase1-feedback"></div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="nextFase(2)" style="display:none" id="fase1-next">Naar Fase 2 →</button>
+            </div>
+        </div>
+
+        <!-- FASE 2: Vertaal Challenge -->
+        <div class="fase" id="fase2">
+            <div class="fase-header">
+                <h2>Fase 2: Vertaal Challenge (30 min)</h2>
+                <div class="timer" id="timer2">30:00</div>
+            </div>
+
+            <div class="help-box">
+                <h4>🌍 Vertaal de BVBz correct!</h4>
+                <p><strong>Nom/Acc:</strong> die, dat</p>
+                <p><strong>Gen:</strong> van wie, waarvan</p>
+                <p><strong>Dat:</strong> aan wie, voor wie</p>
+                <p><strong>Abl:</strong> met wie, door wie, waarin, waardoor</p>
+            </div>
+
+            <div id="translation-container"></div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="check-translation" onclick="checkTranslation()">Controleer</button>
+                <button class="btn btn-primary" id="next-translation" onclick="nextTranslation()" style="display:none">Volgende →</button>
+            </div>
+        </div>
+
+        <!-- FASE 3: Build-a-Sentence -->
+        <div class="fase" id="fase3">
+            <div class="fase-header">
+                <h2>Fase 3: Zinsbouw Puzzle (25 min)</h2>
+                <div class="timer" id="timer3">25:00</div>
+            </div>
+
+            <div class="help-box">
+                <h4>🔨 Bouw de Latijnse zin!</h4>
+                <p>Sleep de woorden in de juiste volgorde. Let op de vorm van het betrekkelijk voornaamwoord!</p>
+            </div>
+
+            <div id="sentence-task"></div>
+
+            <div class="word-bank" id="word-bank">
+                <h4>🎯 Beschikbare woorden (klik om te plaatsen):</h4>
+                <div id="available-words"></div>
+            </div>
+
+            <div class="sentence-builder">
+                <h4>✏️ Jouw zin:</h4>
+                <div id="built-sentence"></div>
+            </div>
+
+            <div class="feedback" id="fase3-feedback"></div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="resetSentence()">🔄 Reset</button>
+                <button class="btn btn-primary" onclick="checkSentence()">Controleer</button>
+                <button class="btn btn-primary" onclick="nextSentence()" style="display:none" id="next-sentence">Volgende →</button>
+            </div>
+        </div>
+
+        <!-- FASE 4: Caesar Battle -->
+        <div class="fase" id="fase4">
+            <div class="fase-header">
+                <h2>Fase 4: Caesar Battle (15 min)</h2>
+                <div class="timer" id="timer4">15:00</div>
+            </div>
+
+            <div class="help-box">
+                <h4>⚔️ Vind alle BVBz in de tekst!</h4>
+                <p>Klik op de woorden die deel uitmaken van een BVBz. Voor elk correct geïdentificeerde bijzin krijg je punten!</p>
+            </div>
+
+            <div class="caesar-text" id="caesar-text"></div>
+
+            <div class="feedback" id="fase4-feedback"></div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="checkCaesar()">Controleer BVBz</button>
+                <button class="btn btn-primary" onclick="nextCaesar()" style="display:none" id="next-caesar">Volgende Tekst →</button>
+                <button class="btn btn-primary" onclick="showResults()" style="display:none" id="show-results">Bekijk Resultaten 🎉</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const flashcardQuestions = [
+            {
+                question: "Vul de juiste vorm in:",
+                sentence: "Milites ___ Caesar laudavit fortes erant.",
+                antecedent: "milites (m, mv)",
+                function: "acc (voorwerp van laudavit)",
+                options: ["qui", "quos", "quem", "quarum", "cuius", "quibus"],
+                correct: "quos",
+                explanation: "Antecedent 'milites' is mannelijk meervoud. In de bijzin is het voorwerp van 'laudavit' → accusatief → quos"
+            },
+            {
+                question: "Vul de juiste vorm in:",
+                sentence: "Puella ___ pater dux est laeta est.",
+                antecedent: "puella (f, enk)",
+                function: "gen (bezit: haar vader)",
+                options: ["quae", "cuius", "cui", "quam", "qua", "quarum"],
+                correct: "cuius",
+                explanation: "Genitief enkelvoud = cuius (voor alle genera)"
+            },
+            {
+                question: "Vul de juiste vorm in:",
+                sentence: "Canis ___ cibum damus laetus est.",
+                antecedent: "canis (m, enk)",
+                function: "dat (indirectvoorwerp)",
+                options: ["qui", "quem", "cui", "cuius", "quo", "quibus"],
+                correct: "cui",
+                explanation: "Datief enkelvoud = cui (voor alle genera)"
+            },
+            {
+                question: "Vul de juiste vorm in:",
+                sentence: "Femina ___ in horto ambulat mater mea est.",
+                antecedent: "femina (f, enk)",
+                function: "nom (onderwerp van ambulat)",
+                options: ["quae", "quam", "cui", "cuius", "qua", "quibus"],
+                correct: "quae",
+                explanation: "Antecedent vrouwelijk enkelvoud, onderwerp → nominatief → quae"
+            },
+            {
+                question: "Vul de juiste vorm in:",
+                sentence: "Urbes ___ Romani ceperunt magnae erant.",
+                antecedent: "urbes (f, mv)",
+                function: "acc (voorwerp van ceperunt)",
+                options: ["quae", "quas", "quarum", "quibus", "qui", "quos"],
+                correct: "quas",
+                explanation: "Vrouwelijk meervoud, accusatief → quas"
+            },
+            {
+                question: "Vul de juiste vorm in:",
+                sentence: "Dux cum ___ Caesar pugnavit fortis erat.",
+                antecedent: "dux (m, enk)",
+                function: "abl (cum + abl)",
+                options: ["qui", "quem", "cui", "quo", "quibus", "cuius"],
+                correct: "quo",
+                explanation: "Mannelijk enkelvoud, ablatief (cum = met) → quo"
+            },
+            {
+                question: "Vul de juiste vorm in:",
+                sentence: "Liber ___ legis bonus est.",
+                antecedent: "liber (m, enk)",
+                function: "acc (voorwerp van legis)",
+                options: ["qui", "quem", "cuius", "cui", "quo", "quod"],
+                correct: "quem",
+                explanation: "Mannelijk enkelvoud, accusatief → quem"
+            },
+            {
+                question: "Vul de juiste vorm in:",
+                sentence: "Verba ___ magister dixit vera sunt.",
+                antecedent: "verba (n, mv)",
+                function: "acc (voorwerp van dixit)",
+                options: ["quae", "quas", "quos", "quorum", "quibus", "quarum"],
+                correct: "quae",
+                explanation: "Onzijdig meervoud, accusatief → quae (gelijk aan nominatief)"
+            },
+            {
+                question: "Vul de juiste vorm in:",
+                sentence: "Miles ___ gladio Caesar pugnavit victor fuit.",
+                antecedent: "miles (m, enk)",
+                function: "gen (bezit: zijn zwaard)",
+                options: ["qui", "quem", "cuius", "cui", "quo", "quibus"],
+                correct: "cuius",
+                explanation: "Genitief enkelvoud = cuius (alle genera)"
+            },
+            {
+                question: "Vul de juiste vorm in:",
+                sentence: "Animalia ___ in silva vivunt libera sunt.",
+                antecedent: "animalia (n, mv)",
+                function: "nom (onderwerp van vivunt)",
+                options: ["quae", "quas", "quorum", "quibus", "qui", "quod"],
+                correct: "quae",
+                explanation: "Onzijdig meervoud, nominatief → quae"
+            }
+        ];
+
+        const translationQuestions = [
+            {
+                latin: "Canem, <span class='highlight'>quem</span> leo ferox momordit, curamus.",
+                options: [
+                    "De hond die de woeste leeuw gebeten heeft, verzorgen we.",
+                    "De hond die de woeste leeuw gebeten heeft, verzorgen wij.",
+                    "De hond die door de woeste leeuw gebeten is, verzorgen we."
+                ],
+                correct: 2,
+                explanation: "Quem = die (acc). Canem is voorwerp (wij verzorgen de hond). In de bijzin is 'quem' ook voorwerp van 'momordit', dus passief: die gebeten is."
+            },
+            {
+                latin: "Cottidie canibus <span class='highlight'>qui</span> in via errant, cibum damus.",
+                options: [
+                    "Elke dag geven we voedsel aan de honden die op straat rondzwerven.",
+                    "Elke dag geven we voedsel aan de honden die wij op straat zien.",
+                    "Elke dag geven we de honden die rondzwerven voedsel."
+                ],
+                correct: 0,
+                explanation: "Qui = die (nom). 'Qui' is onderwerp van 'errant' in de bijzin."
+            },
+            {
+                latin: "Canes <span class='highlight'>quibus</span> cibum damus, cottidie reveniunt.",
+                options: [
+                    "De honden die we eten geven, komen elke dag terug.",
+                    "De honden aan wie we eten geven, komen elke dag terug.",
+                    "De honden waaraan we eten geven, komen elke dag terug."
+                ],
+                correct: 1,
+                explanation: "Quibus = aan wie (dat mv). Datief = meewerkend voorwerp bij 'damus'."
+            },
+            {
+                latin: "Canis <span class='highlight'>cuius</span> cauda caesa est, acriter ululat.",
+                options: [
+                    "De hond die zijn staart afgesneden is, jankt hevig.",
+                    "De hond van wie de staart afgesneden is, jankt hevig.",
+                    "De hond waarvan de staart is afgesneden, jankt hevig."
+                ],
+                correct: 2,
+                explanation: "Cuius = waarvan/van wie (gen). Genitief drukt bezit uit."
+            },
+            {
+                latin: "Amicus <span class='highlight'>quocum</span> in via ambulabam, canes timebat.",
+                options: [
+                    "De vriend die met mij op straat wandelde, vreesde honden.",
+                    "De vriend met wie ik op straat wandelde, vreesde honden.",
+                    "De vriend die ik op straat zag, vreesde honden."
+                ],
+                correct: 1,
+                explanation: "Quocum = met wie (quo + cum). Ablatief met voorzetsel cum."
+            },
+            {
+                latin: "Dux <span class='highlight'>quem</span> Caesar laudavit fortis erat.",
+                options: [
+                    "De aanvoerder die Caesar geprezen heeft was dapper.",
+                    "De aanvoerder die Caesar prijs was dapper.",
+                    "De aanvoerder wiens Caesar prijs was dapper."
+                ],
+                correct: 0,
+                explanation: "Quem = die (acc, m enk). Voorwerp van 'laudavit'."
+            },
+            {
+                latin: "Milites <span class='highlight'>quorum</span> arma magna sunt fortes sunt.",
+                options: [
+                    "De soldaten die grote wapens hebben zijn dapper.",
+                    "De soldaten van wie de wapens groot zijn, zijn dapper.",
+                    "De soldaten waarvan de wapens groot zijn, zijn dapper."
+                ],
+                correct: 2,
+                explanation: "Quorum = waarvan (gen mv m). Genitief bezit."
+            },
+            {
+                latin: "Puella <span class='highlight'>cui</span> librum dedi laeta est.",
+                options: [
+                    "Het meisje dat ik een boek gaf is blij.",
+                    "Het meisje aan wie ik een boek gaf is blij.",
+                    "Het meisje waaraan ik een boek gaf is blij."
+                ],
+                correct: 1,
+                explanation: "Cui = aan wie (dat enk). Meewerkend voorwerp."
+            },
+            {
+                latin: "Urbs <span class='highlight'>quam</span> Romani oppugnaverunt magna erat.",
+                options: [
+                    "De stad die de Romeinen aanvielen was groot.",
+                    "De stad die de Romeinen aanviel was groot.",
+                    "De stad waarvan de Romeinen aanvielen was groot."
+                ],
+                correct: 0,
+                explanation: "Quam = die (acc f enk). Voorwerp van 'oppugnaverunt'."
+            },
+            {
+                latin: "Rex <span class='highlight'>a quo</span> populus regebatur crudelis erat.",
+                options: [
+                    "De koning die het volk regeerde was wreed.",
+                    "De koning door wie het volk geregeerd werd was wreed.",
+                    "De koning van wie het volk geregeerd werd was wreed."
+                ],
+                correct: 1,
+                explanation: "A quo = door wie (abl + voorzetsel a/ab). Handeling door agent."
+            }
+        ];
+
+        const sentenceBuilding = [
+            {
+                task: "De soldaten die Caesar leidt zijn dapper.",
+                words: ["milites", "qui", "quos", "Caesar", "ducit", "fortes", "sunt"],
+                correct: ["milites", "qui", "Caesar", "ducit", "fortes", "sunt"],
+                hint: "Let op: wie is onderwerp van 'ducit'? → nominatief"
+            },
+            {
+                task: "De vrouw van wie de zoon een soldaat is, is trots.",
+                words: ["femina", "cuius", "cui", "filius", "miles", "est", "superba", "sunt"],
+                correct: ["femina", "cuius", "filius", "miles", "est", "superba", "est"],
+                hint: "Genitief = bezit (haar zoon). Let op aantal werkwoorden!"
+            },
+            {
+                task: "De stad die we zien is groot.",
+                words: ["urbs", "quam", "quae", "videmus", "magna", "est", "sunt"],
+                correct: ["urbs", "quam", "videmus", "magna", "est"],
+                hint: "Urbs is voorwerp van 'videmus' → accusatief"
+            },
+            {
+                task: "De honden aan wie we eten geven blaffen.",
+                words: ["canes", "quibus", "quarum", "cibum", "damus", "latrant", "latrat"],
+                correct: ["canes", "quibus", "cibum", "damus", "latrant"],
+                hint: "Aan wie = datief. Canes meervoud!"
+            },
+            {
+                task: "Het boek dat ik lees is interessant.",
+                words: ["liber", "quem", "qui", "lego", "legit", "interessans", "est", "sunt"],
+                correct: ["liber", "quem", "lego", "interessans", "est"],
+                hint: "Boek is voorwerp van 'lego' → accusatief"
+            }
+        ];
+
+        const caesarTexts = [
+            {
+                text: "Gallia est omnis divisa in partes tres, quarum unam incolunt Belgae, aliam Aquitani, tertiam qui ipsorum lingua Celtae, nostra Galli appellantur.",
+                bvbz: [
+                    { words: ["quarum", "unam", "incolunt", "Belgae"], antecedent: "partes" },
+                    { words: ["qui", "ipsorum", "lingua", "Celtae", "nostra", "Galli", "appellantur"], antecedent: "(zij die)" }
+                ]
+            },
+            {
+                text: "Horum omnium fortissimi sunt Belgae, propterea quod a cultu atque humanitate provinciae longissime absunt, proximique sunt Germanis, qui trans Rhenum incolunt, quibuscum continenter bellum gerunt.",
+                bvbz: [
+                    { words: ["qui", "trans", "Rhenum", "incolunt"], antecedent: "Germanis" }
+                ]
+            },
+            {
+                text: "Cottidianis proeliis cum Germanis contendunt, cum aut suis finibus eos prohibent aut ipsi in eorum finibus bellum gerunt.",
+                bvbz: []
+            }
+        ];
+
+        // State
+        let score = 0;
+        let streak = 0;
+        let combo = 1;
+        let currentFlashcard = 0;
+        let currentTranslation = 0;
+        let currentSentence = 0;
+        let currentCaesar = 0;
+        let questionStartTime = 0;
+        let totalTime = 0;
+        let answeredQuestions = 0;
+        let questionInterval;
+        let startTime = Date.now();
+        let builtWords = [];
+        let selectedCaesarWords = [];
+
+        // Timer
+        function startTimer(minutes, elementId) {
+            let seconds = minutes * 60;
+            const timerElement = document.getElementById(elementId);
+            
+            const interval = setInterval(() => {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                timerElement.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                seconds--;
+                
+                if (seconds < 0) {
+                    clearInterval(interval);
+                }
+            }, 1000);
+        }
+
+        // Update total time
+        setInterval(() => {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const mins = Math.floor(elapsed / 60);
+            const secs = elapsed % 60;
+            document.getElementById('total-time').textContent = `Tijd: ${mins}:${secs.toString().padStart(2, '0')}`;
+        }, 1000);
+
+        // Fase 1: Flashcards
+        function loadFlashcard() {
+            if (currentFlashcard >= flashcardQuestions.length) {
+                showAchievement("Fase 1 Voltooid! ⚡ Snelheidsrecord!");
+                setTimeout(() => nextFase(2), 2000);
+                return;
+            }
+
+            const q = flashcardQuestions[currentFlashcard];
+            document.getElementById('flashcard-question').textContent = q.question;
+            document.getElementById('flashcard-latin').textContent = q.sentence;
+
+            const grid = document.getElementById('answer-grid');
+            grid.innerHTML = q.options.map(opt => `
+                <button class="answer-btn" onclick="answerFlashcard('${opt}')">${opt}</button>
+            `).join('');
+
+            questionStartTime = Date.now();
+            startQuestionTimer();
+        }
+
+        function startQuestionTimer() {
+            let timeLeft = 10;
+            document.getElementById('question-timer').textContent = timeLeft;
+            
+            clearInterval(questionInterval);
+            questionInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('question-timer').textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(questionInterval);
+                    handleTimeout();
+                }
+            }, 1000);
+        }
+
+        function handleTimeout() {
+            const q = flashcardQuestions[currentFlashcard];
+            const buttons = document.querySelectorAll('.answer-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === q.correct) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const feedback = document.getElementById('fase1-feedback');
+            feedback.classList.add('show', 'incorrect');
+            feedback.innerHTML = `<h3>⏰ Tijd is op!</h3><p><strong>Juiste antwoord:</strong> ${q.correct}</p><p>${q.explanation}</p>`;
+            
+            streak = 0;
+            combo = 1;
+            updateStats();
+
+            setTimeout(() => {
+                currentFlashcard++;
+                feedback.classList.remove('show', 'incorrect');
+                if (currentFlashcard < flashcardQuestions.length) {
+                    loadFlashcard();
+                } else {
+                    document.getElementById('fase1-next').style.display = 'inline-block';
+                }
+            }, 2000);
+        }
+
+        function answerFlashcard(answer) {
+            clearInterval(questionInterval);
+            const q = flashcardQuestions[currentFlashcard];
+            const buttons = document.querySelectorAll('.answer-btn');
+            
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === q.correct) {
+                    btn.classList.add('correct');
+                } else if (btn.textContent === answer && answer !== q.correct) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            const responseTime = (Date.now() - questionStartTime) / 1000;
+            totalTime += responseTime;
+            answeredQuestions++;
+
+            const feedback = document.getElementById('fase1-feedback');
+            feedback.classList.add('show');
+
+            if (answer === q.correct) {
+                feedback.classList.add('correct');
+                
+                let points = 10;
+                if (responseTime < 5) points += 5; // Snelheidsbonus
+                points = points * combo;
+                
+                feedback.innerHTML = `<h3>✅ Correct! ${responseTime < 5 ? '⚡ Snelheidsbonus!' : ''}</h3><p>${q.explanation}</p><p><strong>+${points} punten</strong></p>`;
+                
+                score += points;
+                streak++;
+                combo = Math.min(combo + 0.5, 3); // Max 3x combo
+            } else {
+                feedback.classList.add('incorrect');
+                feedback.innerHTML = `<h3>❌ Helaas</h3><p><strong>Juiste antwoord:</strong> ${q.correct}</p><p>${q.explanation}</p>`;
+                streak = 0;
+                combo = 1;
+            }
+
+            updateStats();
+
+            setTimeout(() => {
+                currentFlashcard++;
+                feedback.classList.remove('show', 'correct', 'incorrect');
+                updateProgress();
+                if (currentFlashcard < flashcardQuestions.length) {
+                    loadFlashcard();
+                } else {
+                    document.getElementById('fase1-next').style.display = 'inline-block';
+                }
+            }, 2000);
+        }
+
+        // Fase 2: Translation
+        function loadTranslation() {
+            if (currentTranslation >= translationQuestions.length) {
+                showAchievement("Fase 2 Voltooid! 🌍 Vertaalmeester!");
+                setTimeout(() => nextFase(3), 2000);
+                return;
+            }
+
+            const q = translationQuestions[currentTranslation];
+            const container = document.getElementById('translation-container');
+            
+            container.innerHTML = `
+                <div class="question-card">
+                    <p><strong>Vraag ${currentTranslation + 1}/${translationQuestions.length}</strong></p>
+                    <div class="latin-text">${q.latin}</div>
+                    <p><strong>Kies de beste vertaling:</strong></p>
+                    <div class="translation-options">
+                        ${q.options.map((opt, idx) => `
+                            <div class="translation-option" onclick="selectTranslation(${idx})" data-index="${idx}">
+                                ${opt}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="feedback" id="translation-feedback"></div>
+                </div>
+            `;
+        }
+
+        function selectTranslation(index) {
+            document.querySelectorAll('.translation-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            window.selectedTranslation = index;
+        }
+
+        function checkTranslation() {
+            if (window.selectedTranslation === undefined) {
+                alert("Kies eerst een vertaling!");
+                return;
+            }
+
+            const q = translationQuestions[currentTranslation];
+            const options = document.querySelectorAll('.translation-option');
+            
+            options.forEach((opt, idx) => {
+                if (idx === q.correct) {
+                    opt.classList.add('correct');
+                } else if (idx === window.selectedTranslation) {
+                    opt.classList.add('incorrect');
+                }
+            });
+
+            const feedback = document.getElementById('translation-feedback');
+            feedback.classList.add('show');
+
+            if (window.selectedTranslation === q.correct) {
+                feedback.classList.add('correct');
+                feedback.innerHTML = `<h3>✅ Perfect vertaald!</h3><p>${q.explanation}</p>`;
+                score += 15;
+                streak++;
+            } else {
+                feedback.classList.add('incorrect');
+                feedback.innerHTML = `<h3>❌ Niet helemaal</h3><p>${q.explanation}</p>`;
+                streak = 0;
+            }
+
+            updateStats();
+            document.getElementById('check-translation').style.display = 'none';
+            document.getElementById('next-translation').style.display = 'inline-block';
+        }
+
+        function nextTranslation() {
+            currentTranslation++;
+            window.selectedTranslation = undefined;
+            updateProgress();
+            document.getElementById('check-translation').style.display = 'inline-block';
+            document.getElementById('next-translation').style.display = 'none';
+            loadTranslation();
+        }
+
+        // Fase 3: Sentence Building
+        function loadSentenceBuilder() {
+            if (currentSentence >= sentenceBuilding.length) {
+                showAchievement("Fase 3 Voltooid! 🔨 Zinsbouwer!");
+                setTimeout(() => nextFase(4), 2000);
+                return;
+            }
+
+            const s = sentenceBuilding[currentSentence];
+            document.getElementById('sentence-task').innerHTML = `
+                <div class="help-box">
+                    <h4>📝 Bouw deze zin in het Latijn:</h4>
+                    <p style="font-size: 1.3em; font-weight: bold;">"${s.task}"</p>
+                    <p><em>💡 Hint: ${s.hint}</em></p>
+                </div>
+            `;
+
+            const availableWords = document.getElementById('available-words');
+            availableWords.innerHTML = s.words.map(word => `
+                <span class="word-chip" onclick="addWord('${word}')">${word}</span>
+            `).join('');
+
+            document.getElementById('built-sentence').innerHTML = '';
+            builtWords = [];
+        }
+
+        function addWord(word) {
+            builtWords.push(word);
+            updateBuiltSentence();
+        }
+
+        function updateBuiltSentence() {
+            const container = document.getElementById('built-sentence');
+            container.innerHTML = builtWords.map((word, idx) => `
+                <span class="word-chip placed" onclick="removeWord(${idx})">${word}</span>
+            `).join(' ');
+        }
+
+        function removeWord(index) {
+            builtWords.splice(index, 1);
+            updateBuiltSentence();
+        }
+
+        function resetSentence() {
+            builtWords = [];
+            updateBuiltSentence();
+        }
+
+        function checkSentence() {
+            const s = sentenceBuilding[currentSentence];
+            const feedback = document.getElementById('fase3-feedback');
+            feedback.classList.add('show');
+
+            const correct = JSON.stringify(builtWords) === JSON.stringify(s.correct);
+
+            if (correct) {
+                feedback.classList.add('correct');
+                feedback.innerHTML = `<h3>✅ Perfect geconstrueerd!</h3><p>De zin is grammaticaal correct!</p>`;
+                score += 20;
+                streak++;
+            } else {
+                feedback.classList.add('incorrect');
+                feedback.innerHTML = `<h3>❌ Niet helemaal correct</h3><p><strong>Juiste volgorde:</strong> ${s.correct.join(' ')}</p><p>${s.hint}</p>`;
+                streak = 0;
+            }
+
+            updateStats();
+            document.getElementById('next-sentence').style.display = 'inline-block';
+        }
+
+        function nextSentence() {
+            currentSentence++;
+            updateProgress();
+            document.getElementById('next-sentence').style.display = 'none';
+            const feedback = document.getElementById('fase3-feedback');
+            feedback.classList.remove('show', 'correct', 'incorrect');
+            loadSentenceBuilder();
+        }
+
+        // Fase 4: Caesar Battle
+        function loadCaesarText() {
+            if (currentCaesar >= caesarTexts.length) {
+                document.getElementById('next-caesar').style.display = 'none';
+                document.getElementById('show-results').style.display = 'inline-block';
+                return;
+            }
+
+            const caesar = caesarTexts[currentCaesar];
+            const words = caesar.text.split(' ');
+            
+            const container = document.getElementById('caesar-text');
+            container.innerHTML = `
+                <p><strong>Tekst ${currentCaesar + 1}/${caesarTexts.length} - Caesar, De Bello Gallico</strong></p>
+                <p style="margin-top: 15px;">${words.map((word, idx) => 
+                    `<span class="clickable" onclick="toggleCaesarWord(${idx})" id="word-${idx}">${word}</span>`
+                ).join(' ')}</p>
+            `;
+            
+            selectedCaesarWords = [];
+        }
+
+        function toggleCaesarWord(index) {
+            const word = document.getElementById(`word-${index}`);
+            
+            if (selectedCaesarWords.includes(index)) {
+                selectedCaesarWords = selectedCaesarWords.filter(i => i !== index);
+                word.classList.remove('identified');
+            } else {
+                selectedCaesarWords.push(index);
+                word.classList.add('identified');
+            }
+        }
+
+        function checkCaesar() {
+            const caesar = caesarTexts[currentCaesar];
+            const words = caesar.text.split(' ');
+            const feedback = document.getElementById('fase4-feedback');
+            feedback.classList.add('show');
+
+            let correctBvbz = 0;
+            let foundWords = selectedCaesarWords.map(i => words[i]);
+
+            // Check each BVBz
+            caesar.bvbz.forEach(bvbz => {
+                let allFound = bvbz.words.every(w => foundWords.includes(w));
+                if (allFound) correctBvbz++;
+            });
+
+            const totalBvbz = caesar.bvbz.length;
+            
+            if (totalBvbz === 0) {
+                if (selectedCaesarWords.length === 0) {
+                    feedback.classList.add('correct');
+                    feedback.innerHTML = `<h3>✅ Correct!</h3><p>Deze tekst bevat inderdaad geen BVBz!</p>`;
+                    score += 15;
+                    streak++;
+                } else {
+                    feedback.classList.add('incorrect');
+                    feedback.innerHTML = `<h3>⚠️ Let op</h3><p>Deze tekst bevat geen BVBz. Je hebt woorden geselecteerd die geen deel uitmaken van een BVBz.</p>`;
+                    streak = 0;
+                }
+            } else if (correctBvbz === totalBvbz && selectedCaesarWords.length === caesar.bvbz.reduce((sum, b) => sum + b.words.length, 0)) {
+                feedback.classList.add('correct');
+                feedback.innerHTML = `<h3>⚔️ Perfecte analyse!</h3><p>Je hebt alle ${totalBvbz} BVBz correct geïdentificeerd!</p>`;
+                score += 25;
+                streak++;
+            } else {
+                feedback.classList.add('incorrect');
+                let explanation = `<h3>📚 Niet alle BVBz gevonden</h3>`;
+                explanation += `<p>Je vond ${correctBvbz}/${totalBvbz} BVBz.</p>`;
+                caesar.bvbz.forEach((bvbz, idx) => {
+                    explanation += `<p><strong>BVBz ${idx + 1}:</strong> ${bvbz.words.join(' ')} (antecedent: ${bvbz.antecedent})</p>`;
+                });
+                feedback.innerHTML = explanation;
+                streak = 0;
+            }
+
+            updateStats();
+            document.getElementById('next-caesar').style.display = 'inline-block';
+        }
+
+        function nextCaesar() {
+            currentCaesar++;
+            updateProgress();
+            selectedCaesarWords = [];
+            document.getElementById('next-caesar').style.display = 'none';
+            const feedback = document.getElementById('fase4-feedback');
+            feedback.classList.remove('show', 'correct', 'incorrect');
+            loadCaesarText();
+        }
+
+        // Results
+        function showResults() {
+            const avgSpeed = answeredQuestions > 0 ? (totalTime / answeredQuestions).toFixed(1) : 0;
+            const totalPossible = flashcardQuestions.length + translationQuestions.length + sentenceBuilding.length + caesarTexts.length;
+            const percentage = ((score / (totalPossible * 20)) * 100).toFixed(1);
+            
+            let badges = [];
+            if (percentage >= 90) badges.push("🏆 BVBz Master");
+            if (percentage >= 80) badges.push("⭐ Relatief Pro");
+            if (avgSpeed < 6) badges.push("⚡ Snelheidsduivel");
+            if (streak >= 5) badges.push("🔥 Hot Streak");
+            if (combo >= 2) badges.push("💥 Combo King");
+            
+            const container = document.querySelector('.fase.active');
+            container.innerHTML = `
+                <div style="text-align: center;">
+                    <h2 style="color: #f5576c; margin-bottom: 30px;">🎉 Sessie 2 Voltooid!</h2>
+                    
+                    <div class="achievement">
+                        <h3>Je Resultaten</h3>
+                        <div style="font-size: 3em; margin: 20px 0;">${percentage}%</div>
+                        <p style="font-size: 1.2em;">Score: ${score} punten</p>
+                        <p>Hoogste streak: ${streak}</p>
+                        <p>Gemiddelde snelheid: ${avgSpeed}s per vraag</p>
+                    </div>
+                    
+                    <div style="margin: 30px 0;">
+                        <h3 style="color: #f5576c; margin-bottom: 15px;">🏅 Behaalde Badges</h3>
+                        ${badges.map(b => `<span class="badge">${b}</span>`).join('')}
+                    </div>
+                    
+                    <div class="help-box" style="text-align: left;">
+                        <h4>📊 Jouw Analyse</h4>
+                        <p><strong>Totale score:</strong> ${score} XP</p>
+                        <p><strong>Hoogste combo:</strong> ${combo.toFixed(1)}x</p>
+                        <p><strong>Snelste antwoord:</strong> ${avgSpeed}s gemiddeld</p>
+                        <br>
+                        <h4>💡 Tips voor Sessie 3</h4>
+                        ${percentage >= 80 
+                            ? '<p>Uitstekend! Je beheerst het betrekkelijk voornaamwoord goed. In sessie 3 gaan we dieper in op Oz/Vz.</p>' 
+                            : '<p>Herhaal vooral de vormen van qui/quae/quod en let goed op het antecedent. Focus op het verschil tussen naamvallen.</p>'}
+                        <br>
+                        <h4>🎯 Wat je nu beheerst:</h4>
+                        <p>✅ Vormen van het betrekkelijk voornaamwoord (qui, quae, quod)</p>
+                        <p>✅ Antecedent herkennen</p>
+                        <p>✅ BVBz correct vertalen</p>
+                        <p>✅ Zinnen construeren met BVBz</p>
+                        <p>✅ BVBz identificeren in auteursteksten</p>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary" onclick="location.reload()">🔄 Opnieuw Doen</button>
+                        <button class="btn btn-primary" onclick="alert('Sessie 3 komt binnenkort! 🚀')">Naar Sessie 3 →</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Utility Functions
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('streak').textContent = streak;
+            document.getElementById('combo').textContent = combo.toFixed(1) + 'x';
+            
+            const avgSpeed = answeredQuestions > 0 ? (totalTime / answeredQuestions).toFixed(1) : 0;
+            document.getElementById('speed').textContent = avgSpeed + 's';
+        }
+
+        function updateProgress() {
+            const total = flashcardQuestions.length + translationQuestions.length + sentenceBuilding.length + caesarTexts.length;
+            const completed = currentFlashcard + currentTranslation + currentSentence + currentCaesar;
+            const percentage = (completed / total) * 100;
+            
+            document.getElementById('progress-fill').style.width = percentage + '%';
+            document.getElementById('progress-fill').textContent = Math.round(percentage) + '%';
+        }
+
+        function nextFase(faseNum) {
+            document.querySelectorAll('.fase').forEach(f => f.classList.remove('active'));
+            document.getElementById(`fase${faseNum}`).classList.add('active');
+            document.getElementById('current-fase').textContent = `Fase ${faseNum} van 4`;
+            
+            if (faseNum === 2) {
+                loadTranslation();
+                startTimer(30, 'timer2');
+            } else if (faseNum === 3) {
+                loadSentenceBuilder();
+                startTimer(25, 'timer3');
+            } else if (faseNum === 4) {
+                loadCaesarText();
+                startTimer(15, 'timer4');
+            }
+            
+            updateProgress();
+        }
+
+        function showAchievement(text) {
+            const existing = document.querySelector('.achievement');
+            if (existing && !existing.innerHTML.includes('Je Resultaten')) existing.remove();
+            
+            const achievement = document.createElement('div');
+            achievement.className = 'achievement';
+            achievement.innerHTML = `<h3>${text}</h3>`;
+            document.querySelector('.container').appendChild(achievement);
+            
+            setTimeout(() => achievement.remove(), 3000);
+        }
+
+        // Initialize
+        loadFlashcard();
+        startTimer(20, 'timer1');
+        updateStats();
+    </script>
+</body>
+</html>
